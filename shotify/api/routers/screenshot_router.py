@@ -12,7 +12,7 @@ screenshot_router = APIRouter()
 async def create_screenshot(request: ScreenshotRequest):
     try:
         result = await screenshot_service.create_screenshot(request)
-        return json.dumps(result)
+        return result
     except Exception as e:
         return {"error": str(e)}
 

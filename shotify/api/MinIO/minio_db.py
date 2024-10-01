@@ -20,8 +20,8 @@ def upload_file(file_path, object_name):
     return f"{BUCKET_NAME}/{object_name}"
 
 
-def get_file(object_name):
+def get_file(object_name, path):
     try:
-        return minio_client.get_object(BUCKET_NAME, object_name)
+        return minio_client.fget_object(bucket_name=BUCKET_NAME, object_name=object_name, file_path=path)
     except S3Error as err:
         return None

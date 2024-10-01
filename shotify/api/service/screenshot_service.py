@@ -2,6 +2,7 @@ import os
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
+from starlette.responses import FileResponse
 
 from shotify.api.MinIO.minio_db import upload_file, get_file
 from shotify.api.db.database import SessionLocal, Screenshot
@@ -16,9 +17,10 @@ async def create_screenshot(request: ScreenshotRequest):
         screenshot = db.query(Screenshot).filter(Screenshot.url == request.url).first()
 
         if screenshot and not request.is_fresh:
-            file = get_file(screenshot.s3_path)
+            local_file_path = f"/tmp/{os.path.basename(screenshot.s3_path)}"
+            file = get_file(os.path.basename(screenshot.s3_path), screenshot.s3_path)
             if file:
-                return {"screenshot_url": screenshot.s3_path}
+                return FileResponse(local_file_path, media_type="image/png")
             else:
                 raise HTTPException(status_code=404, detail="Item not found")
 
@@ -34,6 +36,8 @@ async def create_screenshot(request: ScreenshotRequest):
         else:
             screenshot.s3_path = s3_path
 
+        local_file_path = f"/tmp/{os.path.basename(s3_path)}"
+
         db.commit()
     except SQLAlchemyError as e:
         print(f"Database error: {e}")
@@ -44,5 +48,5 @@ async def create_screenshot(request: ScreenshotRequest):
     finally:
         db.close()
 
-    return {"screenshot_url": s3_path}
+    return FileResponse(local_file_path, media_type="image/png")
 

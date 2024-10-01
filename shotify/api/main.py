@@ -8,16 +8,6 @@ from shotify.api.routers.screenshot_router import screenshot_router
 app = FastAPI()
 app.include_router(screenshot_router)
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
