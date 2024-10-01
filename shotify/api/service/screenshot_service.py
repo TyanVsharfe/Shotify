@@ -1,4 +1,5 @@
 import os
+from http import HTTPStatus
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
@@ -22,13 +23,13 @@ async def create_screenshot(request: ScreenshotRequest):
             if file:
                 return FileResponse(local_file_path, media_type="image/png")
             else:
-                raise HTTPException(status_code=404, detail="Item not found")
+                raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Item not found")
 
         screenshot_path = capture_screenshot(request.url)
         s3_path = upload_file(screenshot_path, os.path.basename(screenshot_path))
 
         if not s3_path:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Item not found")
 
         if not screenshot:
             screenshot = Screenshot(url=request.url, s3_path=s3_path)
@@ -41,10 +42,10 @@ async def create_screenshot(request: ScreenshotRequest):
         db.commit()
     except SQLAlchemyError as e:
         print(f"Database error: {e}")
-        raise HTTPException(status_code=500, detail="Database error")
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Database error")
     except Exception as e:
         print(f"Error: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"Not found")
     finally:
         db.close()
 

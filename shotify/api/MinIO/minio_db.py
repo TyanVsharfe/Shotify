@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from minio import Minio
 from minio.error import S3Error
 
@@ -24,4 +25,6 @@ def get_file(object_name, path):
     try:
         return minio_client.fget_object(bucket_name=BUCKET_NAME, object_name=object_name, file_path=path)
     except S3Error as err:
-        return None
+        raise HTTPException(status_code=404, detail="Item not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {e}")

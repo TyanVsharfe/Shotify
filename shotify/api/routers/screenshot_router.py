@@ -1,6 +1,6 @@
 import json
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from shotify.api.models.Screenshot import ScreenshotRequest
 from shotify.api.service import screenshot_service
@@ -14,5 +14,5 @@ async def create_screenshot(request: ScreenshotRequest):
         result = await screenshot_service.create_screenshot(request)
         return result
     except Exception as e:
-        return {"error": str(e)}
+        return {"Error": str(e)}
 
