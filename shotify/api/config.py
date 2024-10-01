@@ -15,5 +15,10 @@ class Settings:
     MINIO_ACCESS_KEY = os.getenv('MINIO_ACCESS_KEY')
     MINIO_SECRET_KEY = os.getenv('MINIO_SECRET_KEY')
 
+    SELENIUM_HOST = os.getenv('SELENIUM_HOST')
+
+    BACKEND_CORS_ORIGINS: list[str] = ["http://127.0.0.1:8000",
+                                       "http://localhost:8000"]
+
 
 settings = Settings()

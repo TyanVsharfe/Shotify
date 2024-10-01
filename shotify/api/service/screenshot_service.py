@@ -1,6 +1,7 @@
 import os
 
 from fastapi import HTTPException
+from sqlalchemy.exc import SQLAlchemyError
 
 from shotify.api.MinIO.minio_db import upload_file, get_file
 from shotify.api.db.database import SessionLocal, Screenshot
@@ -10,6 +11,7 @@ from shotify.api.utils.utils import capture_screenshot
 
 async def create_screenshot(request: ScreenshotRequest):
     db = SessionLocal()
+    print(f"Request {request.url} {request.is_fresh}")
     try:
         screenshot = db.query(Screenshot).filter(Screenshot.url == request.url).first()
 
@@ -33,6 +35,12 @@ async def create_screenshot(request: ScreenshotRequest):
             screenshot.s3_path = s3_path
 
         db.commit()
+    except SQLAlchemyError as e:
+        print(f"Database error: {e}")
+        raise HTTPException(status_code=500, detail="Database error")
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
     finally:
         db.close()
 
